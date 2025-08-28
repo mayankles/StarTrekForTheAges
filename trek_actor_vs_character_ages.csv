@@ -1,0 +1,39 @@
+Series,Character,Actor,CharacterAge,ActorAge,AtStartOrJoin,Notes,Delta_ActorMinusCharacter
+TOS,James T. Kirk,William Shatner,32.0,35,S1,,3.0
+TOS,Spock,Leonard Nimoy,35.0,35,S1,,0.0
+TOS,Leonard 'Bones' McCoy,DeForest Kelley,38.0,46,S1,,8.0
+TOS,Montgomery 'Scotty' Scott,James Doohan,43.0,46,S1,,3.0
+TOS,Nyota Uhura,Nichelle Nichols,26.0,33,S1,,7.0
+TOS,Hikaru Sulu,George Takei,28.0,29,S1,,1.0
+TOS,Pavel Chekov,Walter Koenig,22.0,31,S2,Used S2 join year,9.0
+TOS,Christine Chapel,Majel Barrett,35.0,33,S1,,-2.0
+TNG,Jean-Luc Picard,Patrick Stewart,59.0,47,S1,,-12.0
+TNG,William T. Riker,Jonathan Frakes,29.0,35,S1,,6.0
+TNG,Data,Brent Spiner,26.0,38,S1,Age from 2338 reactivation,12.0
+TNG,Geordi La Forge,LeVar Burton,29.0,30,S1,,1.0
+TNG,Worf,Michael Dorn,24.0,34,S1,,10.0
+TNG,Deanna Troi,Marina Sirtis,28.0,32,S1,,4.0
+TNG,Beverly Crusher,Gates McFadden,40.0,38,S1,,-2.0
+TNG,Wesley Crusher,Wil Wheaton,16.0,15,S1,,-1.0
+TNG,Tasha Yar,Denise Crosby,27.0,29,S1,,2.0
+TNG,Katherine Pulaski,Diana Muldaur,,49,S2,Character on-screen birth year not stated,
+DS9,Benjamin Sisko,Avery Brooks,37.0,44,S1,,7.0
+DS9,Kira Nerys,Nana Visitor,26.0,35,S1,,9.0
+DS9,Odo,René Auberjonois,,52,S1,Character age not well-defined,
+DS9,Jadzia Dax,Terry Farrell,28.0,29,S1,,1.0
+DS9,Julian Bashir,Alexander Siddig,28.0,27,S1,,-1.0
+DS9,Miles O'Brien,Colm Meaney,41.0,39,S1,,-2.0
+DS9,Quark,Armin Shimerman,36.0,43,S1,,7.0
+DS9,Jake Sisko,Cirroc Lofton,14.0,14,S1,,0.0
+DS9,Worf,Michael Dorn,32.0,42,S4,Used S4 join year,10.0
+DS9,Ezri Dax,Nicole de Boer,27.0,28,S7,Used S7 join year,1.0
+VOY,Kathryn Janeway,Kate Mulgrew,35.0,39,S1,,4.0
+VOY,Chakotay,Robert Beltran,42.0,41,S1,,-1.0
+VOY,Tuvok,Tim Russ,107.0,38,S1,,-69.0
+VOY,Tom Paris,Robert Duncan McNeill,25.0,30,S1,,5.0
+VOY,Harry Kim,Garrett Wang,22.0,26,S1,,4.0
+VOY,B'Elanna Torres,Roxann Dawson,25.0,36,S1,,11.0
+VOY,The Doctor (EMH),Robert Picardo,0.0,41,S1,EMH activation at series start,41.0
+VOY,Neelix,Ethan Phillips,36.0,39,S1,,3.0
+VOY,Kes,Jennifer Lien,2.0,20,S1,,18.0
+VOY,Seven of Nine,Jeri Ryan,26.0,29,S4,Used S4 join year,3.0

@@ -1,0 +1,288 @@
+---
+title: "Star Trek: For the Ages"
+author: "Compiled with ChatGPT (GPT-5 Thinking)"
+output:
+  html_document:
+    theme:
+      bootswatch: darkly
+      primary: "#FFD166"    # command gold
+      secondary: "#2B8CBE"  # sciences blue
+      # base_font: {google: "IBM Plex Mono"}
+    toc: true
+    toc_float: {collapsed: false}
+    code_folding: hide
+    highlight: pygments
+params:
+  data_path: "trek_actor_vs_character_ages.csv"
+  color_mode: "winsor75"   # "winsor75" or "signedlog"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+# Overview
+
+**What this document does**
+
+1. **Explains** how we compiled ages for *characters* (in-universe) and *actors* (real-world) for the four flagship live-action series: **TOS**, **TNG**, **DS9**, **VOY**.  
+2. **Builds per-series plots** (one series at a time) using a paired dotplot with the **Δ value shown in the y-axis labels**.  
+3. **Builds a final multi-panel figure** combining all four series. The final panel uses a **diverging color scale** mapped to Δ = Actor − Character with **robust scaling** so outliers don’t wash out mid-range differences.  
+4. **Highlights observations**, e.g., the general tendency that **actors are often a few years older** than their characters.  
+5. Shows **R session info** in a collapsible box.
+
+# Data collection notes
+
+- **Character ages at series start (or join season)** are derived from widely accepted in-universe **birth/activation years** as recorded on fan-maintained compendia (e.g., Memory Alpha).  
+  - *Examples*: TOS (~2265), TNG (2364), DS9 (2369), VOY (2371). For later arrivals (e.g., **Chekov** joins TOS S2; **Worf** joins DS9 S4; **Seven of Nine** joins VOY S4), we use the **join-season** as the reference year.  
+  - Special cases: **Data** uses age since **reactivation (2338)**; **The Doctor (EMH)** is age **0** at activation; **Tuvok** (~107) reflects canonical Vulcan age at series start.  
+  - If a character’s canonical DOB/age is **undefined** on-screen (e.g., **Pulaski** in TNG, **Odo** in DS9), we **omit** that character from the numeric plots.
+- **Actor ages** are computed on each series’ **U.S. premiere** (or join-season premiere) from public DOBs (e.g., Wikipedia).  
+  - *Premiere dates used*: TOS **1966-09-08**, TNG **1987-09-28**, DS9 **1993-01-03**, VOY **1995-01-16**.
+
+These values are **hand-curated** for this analysis; they are intended for visualization/educational purposes rather than strict canon adjudication.
+
+# Setup
+## Packages & a tiny Trek-like theme
+
+```{r packages}
+# install.packages(c("ggplot2","dplyr","tidyr","patchwork","scales","readr")) # if needed
+library(ggplot2); library(dplyr); library(tidyr); library(patchwork); library(scales); library(grid)
+
+# optional: use readr if available
+use_readr <- requireNamespace("readr", quietly = TRUE)
+
+# A small "Star Trek-y" theme: dark space background, LCARS-ish accent colors,
+# mono text, and gold titles.
+theme_trek <- function(base_size = 12) {
+  theme_minimal(base_size = base_size) %+replace%
+    theme(
+      plot.background  = element_rect(fill = "#0b0f18", color = NA),
+      panel.background = element_rect(fill = "#0b0f18", color = NA),
+      panel.grid.major.x = element_line(color = "#1d2436"),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor = element_blank(),
+      text = element_text(color = "#E6E6E6", family = "mono"),
+      axis.text = element_text(color = "#D0D6E2"),
+      axis.title = element_text(color = "#E6E6E6"),
+      plot.title = element_text(color = "#ffd166", face = "bold"),
+      plot.subtitle = element_text(color = "#E6E6E6"),
+      legend.background = element_rect(fill = "#0b0f18", color = NA),
+      legend.text = element_text(color = "#E6E6E6"),
+      legend.title = element_text(color = "#E6E6E6")
+    )
+}
+```
+
+## Read dataset (from CSV)
+
+```{r data}
+if (use_readr) {
+  df_raw <- readr::read_csv(params$data_path, show_col_types = FALSE)
+} else {
+  df_raw <- read.csv(params$data_path, stringsAsFactors = FALSE)
+}
+
+df <- df_raw %>%
+  filter(!is.na(CharacterAge), !is.na(ActorAge)) %>%
+  mutate(
+    Delta  = ActorAge - CharacterAge,
+    AbsDiff = abs(Delta)
+  )
+```
+
+## Quick summary stats
+
+```{r summary-stats}
+library(knitr)
+sum_tbl <- df %>%
+  group_by(Series) %>%
+  summarise(
+    n = n(),
+    median_delta = median(Delta),
+    mean_delta = mean(Delta),
+    min_delta = min(Delta),
+    max_delta = max(Delta)
+  ) %>%
+  ungroup()
+
+overall <- df %>% summarise(
+  Series = "ALL",
+  n = n(),
+  median_delta = median(Delta),
+  mean_delta = mean(Delta),
+  min_delta = min(Delta),
+  max_delta = max(Delta)
+)
+
+kable(bind_rows(sum_tbl, overall), digits = 2, caption = "Δ = Actor − Character (years)")
+```
+
+> **Observation:** Across these series, actors are **generally older** than their characters (positive median Δ in every series except ties). The biggest absolute gaps tend to be **non-human/artificial** roles (e.g., **Data**, **Tuvok**, **EMH**), where in-universe chronology diverges from human lifespans.
+
+# Per-series plots (Δ in y-axis labels)
+
+We start with a paired dotplot for each series, sorting rows by |Δ| and printing Δ in the y-axis labels.
+
+```{r per-series-plotter}
+plot_one_series <- function(d, series_code) {
+  d <- d %>%
+    filter(Series == series_code, !is.na(CharacterAge), !is.na(ActorAge)) %>%
+    mutate(Diff = ActorAge - CharacterAge,
+           AbsDiff = abs(Diff),
+           Label = sprintf("%s  (Δ=%+d)", Character, Diff)) %>%
+    arrange(desc(AbsDiff)) %>%
+    mutate(Label = factor(Label, levels = Label))
+
+  d_long <- d %>%
+    select(Label, CharacterAge, ActorAge) %>%
+    pivot_longer(c(CharacterAge, ActorAge), names_to = "Type", values_to = "Age") %>%
+    mutate(Type = recode(Type, CharacterAge = "Character age", ActorAge = "Actor age"))
+
+  ggplot() +
+    geom_segment(data = d,
+                 aes(x = CharacterAge, xend = ActorAge, y = Label, yend = Label),
+                 linewidth = 3, alpha = 0.25, color = "grey60") +
+    geom_point(data = d_long,
+               aes(x = Age, y = Label, shape = Type),
+               size = 3, color = "#ffd166") +
+    scale_shape_manual(values = c("Character age" = 15, "Actor age" = 16), name = NULL) +
+    scale_x_continuous(breaks = seq(0, 110, 10)) +
+    labs(title = paste0("Star Trek — ", series_code, " (Δ in labels)"),
+         x = "Age (years)", y = NULL) +
+    theme_trek() +
+    theme(plot.title.position = "plot")
+}
+```
+
+### TOS
+```{r fig.width=8, fig.height=5}
+plot_one_series(df, "TOS")
+```
+
+### TNG
+```{r fig.width=8, fig.height=5}
+plot_one_series(df, "TNG")
+```
+
+### DS9
+```{r fig.width=8, fig.height=5}
+plot_one_series(df, "DS9")
+```
+
+### VOY
+```{r fig.width=8, fig.height=5}
+plot_one_series(df, "VOY")
+```
+
+# Multi-panel figure (diverging colors, robust scaling)
+
+For the final combined view, we color both markers and connectors by **Δ = Actor − Character** using a diverging scale. To keep mid-range differences legible despite outliers, we use **winsorization at the 75th percentile** (default), with an option to use a **signed log transform** instead.
+
+```{r multipanel-prep}
+color_mode <- params$color_mode  # "winsor75" or "signedlog"
+
+if (color_mode == "winsor75") {
+  q <- quantile(abs(df$Delta), 0.75, na.rm = TRUE)
+  df2 <- df %>% mutate(Delta_col = pmin(pmax(Delta, -q), q))
+  col_limits <- c(-q, q)
+  legend_breaks  <- c(col_limits[1], 0, col_limits[2])
+  legend_labels  <- c("Older Character", "", "Older Actor")
+  line_map <- function(x) pmin(x, q)
+  fill_scale <- scale_fill_gradient2(
+    low = "#5fa8d3", mid = "#f7f7f7", high = "#d62828",
+    midpoint = 0, limits = col_limits, oob = scales::squish,
+    breaks = legend_breaks, labels = legend_labels,
+    guide = guide_colorbar(
+      title = "Age Difference between actor (◯) and character (▢)",
+      title.position = "top",
+      direction = "horizontal",
+      label.position = "bottom",
+      barwidth = unit(12, "lines"),
+      barheight = unit(0.8, "lines")
+    )
+  )
+} else {
+  sgnlog <- function(x) sign(x) * log1p(abs(x))
+  df2 <- df %>% mutate(Delta_col = sgnlog(Delta))
+  col_limits <- c(-max(abs(df2$Delta_col)), max(abs(df2$Delta_col)))
+  M <- max(abs(df$Delta), na.rm = TRUE)
+  legend_breaks_raw <- c(-M, 0, M); legend_breaks_col <- sgnlog(legend_breaks_raw)
+  legend_labels  <- c("Older Character", "", "Older Actor")
+  line_map <- identity
+  fill_scale <- scale_fill_gradient2(
+    low = "#5fa8d3", mid = "#f7f7f7", high = "#d62828",
+    midpoint = 0, limits = col_limits,
+    breaks = legend_breaks_col, labels = legend_labels,
+    guide = guide_colorbar(
+      title = "Age Difference between actor (◯) and character (▢)",
+      title.position = "top",
+      direction = "horizontal",
+      label.position = "bottom",
+      barwidth = unit(12, "lines"),
+      barheight = unit(0.8, "lines")
+    )
+  )
+}
+```
+
+```{r multipanel-plotter}
+make_panel <- function(series_code) {
+  d <- df2 %>%
+    filter(Series == series_code) %>%
+    arrange(desc(AbsDiff)) %>%
+    mutate(Label = sprintf("%s | %s", Character, Actor),
+           Label = factor(Label, levels = Label))
+
+  char_pts  <- d %>% select(Label, x = CharacterAge, Delta_col, AbsDiff)
+  actor_pts <- d %>% select(Label, x = ActorAge,     Delta_col, AbsDiff)
+
+  ggplot() +
+    geom_segment(
+      data = d,
+      aes(x = CharacterAge, xend = ActorAge,
+          y = Label, yend = Label,
+          color = Delta_col, linewidth = line_map(AbsDiff)),
+      alpha = 0.45
+    ) +
+    geom_point(data = char_pts,
+               aes(x = x, y = Label, fill = Delta_col),
+               shape = 22, size = 3.6, stroke = 0.7, color = "#0b0f18") +
+    geom_point(data = actor_pts,
+               aes(x = x, y = Label, fill = Delta_col),
+               shape = 21, size = 5.2, stroke = 0.7, color = "#0b0f18") +
+    fill_scale +
+    scale_color_gradient2(
+      low = "#5fa8d3", mid = "#f7f7f7", high = "#d62828",
+      midpoint = 0, limits = col_limits, oob = scales::squish,
+      guide = "none"
+    ) +
+    scale_linewidth(range = c(1.5, 5), guide = "none") +
+    scale_x_continuous(expand = expansion(mult = c(0.02, 0.06))) +
+    labs(title = series_code, x = "Age (years)", y = NULL) +
+    theme_trek() +
+    theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5))
+}
+```
+
+## Final multi-panel (2×2)
+
+```{r multipanel-render, fig.width=12, fig.height=7}
+series_order <- c("TOS","TNG","DS9","VOY")
+plots <- lapply(series_order, make_panel)
+multi <- wrap_plots(plots, ncol = 2, guides = "collect") &
+  theme(legend.position = "bottom")
+multi
+```
+
+# Notes & observations
+
+- For **human characters**, casting typically skews toward **actors a bit older** than their characters (positive Δ of a few years).  
+- The **largest absolute differences** are disproportionately **non-human/artificial** roles: **Data** (+12), **Tuvok** (−69 vs a human comparison), **EMH** (+41), where in-universe chronology diverges from human lifespans.  
+- Per-series medians (see summary table above) generally support the “actors older than characters” story.
+
+# R Session info
+
+```{r session-info, attr.output='style="max-height: 200px;"'}
+sessionInfo()
+```
