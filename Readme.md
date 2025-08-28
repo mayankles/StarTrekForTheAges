@@ -1,7 +1,16 @@
-# Star Trek: Actor vs. Character Ages (TOS · TNG · DS9 · VOY)
+# [Star Trek: For the Ages](https://mayankles.github.io/StarTrekForTheAges/)
+
+## Final figure
+![Final figure: Actor vs. Character Ages](trek_multipanel_delta_winsor.png)
+
+---
+
+### Some more details in the R Markdown report [here](https://mayankles.github.io/StarTrekForTheAges/)
+
+---
 
 ## Why this exists
-During a **TNG rewatch**, I started wondering how old the characters are supposed to be at the start of each series—and how that compares to the **actors’ real ages** when the shows premiered. That curiosity turned into a fun, productive back-and-forth with **ChatGPT 5**, where we pulled together a small, tidy dataset and a set of visualizations.
+During my latest rewatch of Star Trek: The Next Generation, I started wondering how old the characters are supposed to be at the start of each series—and how that compares to the **actors’ real ages** when the shows premiered. That curiosity turned into a fun, productive back-and-forth with **ChatGPT 5**, where we pulled together a small, tidy dataset and a set of visualizations.
 
 **Headline finding:** for human characters across these series, actors are **generally a few years older** than their characters. The biggest gaps show up for **non-human/artificial** roles (e.g., Data, Tuvok, the EMH) where in-universe aging doesn’t map to human years.
 
@@ -67,5 +76,3 @@ You can change the mode via the Rmd `params`.
 
 ---
 
-## Multi-panel figure
-![Final figure: Actor vs. Character Ages](trek_multipanel_delta_winsor.png)
