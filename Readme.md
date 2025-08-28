@@ -1,6 +1,11 @@
 # [Star Trek: For the Ages](https://mayankles.github.io/StarTrekForTheAges/)
 
-This is an exploration of the characters of Star Trek and the actors who portrayed them. Age information was compiled from online sources by ChatGPT 5 Thinking around August 24, 2025.
+#### An exploration of the ages of the characters of Star Trek and the actors who portrayed them. 
+
+<b>
+Age information was compiled from online sources by ChatGPT 5 Thinking on/around August 24, 2025.
+</b>
+
 
 Four flagship series were selected for analysis:
 
@@ -9,14 +14,15 @@ Four flagship series were selected for analysis:
 - Deep Space Nine (DS9)
 - Voyager (VOY)
 
-## Actor vs. Character Ages in Star Trek Series
-![Final figure: Actor vs. Character Ages](trek_multipanel_delta_winsor.png)
-
 ---
 
 ### Some more details in the R Markdown report [here](https://mayankles.github.io/StarTrekForTheAges/)
 
 ---
+
+## Actor vs. Character Ages in Star Trek Series
+![Final figure: Actor vs. Character Ages](trek_multipanel_delta_winsor.png)
+
 
 ## Why this exists
 During my latest rewatch of Star Trek: The Next Generation, I started wondering how old the characters are supposed to be at the start of each series—and how that compares to the **actors’ real ages** when the shows premiered. That curiosity turned into a fun, productive back-and-forth with **ChatGPT 5**, where we pulled together a small, tidy dataset and a set of visualizations.
