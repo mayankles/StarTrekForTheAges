@@ -12,7 +12,6 @@ And in retrospect, I think this is a good example of using LLMs to collect organ
 
 ---
 
-## Actor vs. Character Ages in Star Trek Series
 Four flagship series were selected for analysis:
 
 - The Original Series (TOS)
@@ -23,6 +22,9 @@ Four flagship series were selected for analysis:
 <b>
 Age information was compiled from online sources by ChatGPT 5 Thinking on/around August 24, 2025.
 </b>
+
+
+## Actor vs. Character Ages in Star Trek Series
 
 ![Final figure: Actor vs. Character Ages](trek_multipanel_delta_winsor.png)
 
