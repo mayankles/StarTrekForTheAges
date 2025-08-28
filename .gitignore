@@ -1,0 +1,29 @@
+# ---- macOS cruft ----
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# ---- R / RStudio ----
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Ruserdata
+.Renviron
+.Rproj.user/
+
+# ---- R Markdown / knitr ----
+*_cache/
+cache/
+*_files/
+figure/
+*.utf8.md
+*.knit.md
+
+# ---- Project-specific ----
+/testing/
+
