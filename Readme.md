@@ -23,6 +23,7 @@ Four flagship series were selected for analysis:
 <b>
 Age information was compiled from online sources by ChatGPT 5 Thinking on/around August 24, 2025.
 </b>
+
 ![Final figure: Actor vs. Character Ages](trek_multipanel_delta_winsor.png)
 
 
